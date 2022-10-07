@@ -20,7 +20,6 @@ type Conn struct {
 	OnError   func(error)
 	OnClose   func()
 	writeChan chan []byte
-	UserData  any
 }
 
 type Server struct {

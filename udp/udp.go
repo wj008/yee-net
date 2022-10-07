@@ -21,7 +21,6 @@ type Conn struct {
 	OnError   func(error)
 	OnClose   func()
 	writeChan chan *Package
-	UserData  any
 }
 
 func ListenUDP(ctx context.Context, network string, addr string) (*Conn, error) {
