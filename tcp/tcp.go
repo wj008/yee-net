@@ -107,30 +107,24 @@ func Dial(ctx context.Context, network string, addr string) (*Conn, error) {
 func (cli *Conn) readBytes(length int) ([]byte, error) {
 	temp := make([]byte, length)
 	buffer := make([]byte, 0)
-	try := 0
-	nLen := 0
 	maxTry := length / 100
 	if maxTry < 10 {
 		maxTry = 10
 	}
-	end := length
-	for {
-		try++
-		if try > maxTry {
-			return nil, errors.New(fmt.Sprintf("Expected to read %d bytes, but only read %d", length, nLen))
-		}
+	nLen := 0
+	for i := 0; i < maxTry; i++ {
 		n, err := cli.Read(temp)
 		if err != nil {
 			return nil, err
 		}
 		buffer = append(buffer, temp[:n]...)
 		nLen += n
-		if n >= end {
+		if nLen >= length {
 			return buffer, nil
 		}
-		temp = temp[n:end]
-		end = end - n
+		temp = temp[n:]
 	}
+	return nil, errors.New(fmt.Sprintf("Expected to read %d bytes, but only read %d", length, nLen))
 }
 
 func (cli *Conn) start() {
