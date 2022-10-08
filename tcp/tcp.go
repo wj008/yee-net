@@ -105,7 +105,6 @@ func Dial(ctx context.Context, network string, addr string) (*Conn, error) {
 
 // readBytes 读取套接字字节
 func (cli *Conn) readBytes(length int) ([]byte, error) {
-	end := length
 	temp := make([]byte, length)
 	buffer := make([]byte, 0)
 	try := 0
@@ -114,6 +113,7 @@ func (cli *Conn) readBytes(length int) ([]byte, error) {
 	if maxTry < 10 {
 		maxTry = 10
 	}
+	end := length
 	for {
 		try++
 		if try > maxTry {
