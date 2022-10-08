@@ -104,33 +104,32 @@ func Dial(ctx context.Context, network string, addr string) (*Conn, error) {
 }
 
 // readBytes 读取套接字字节
-func (cli *Conn) readBytes(length int) ([]byte, error) {
+func (c *Conn) readBytes(length int) ([]byte, error) {
 	end := length
-	buffer := make([]byte, length)
-	temp := buffer[0:end]
-	reTry := 0
+	temp := make([]byte, length)
+	buffer := make([]byte, 0)
+	try := 0
 	nLen := 0
+	maxTry := length / 100
+	if maxTry < 10 {
+		maxTry = 10
+	}
 	for {
-		select {
-		case <-cli.context.Done():
-			return nil, errors.New("链接已经退出")
-		default:
-			reTry++
-			if reTry > 100 {
-				return nil, errors.New(fmt.Sprintf("Expected to read %d bytes, but only read %d", length, nLen))
-			}
-			n, err := cli.Read(temp)
-			if err != nil {
-				return nil, err
-			}
-			nLen += n
-			if n < end {
-				temp = buffer[n:end]
-				end = end - n
-				continue
-			}
+		try++
+		if try > maxTry {
+			return nil, errors.New(fmt.Sprintf("Expected to read %d bytes, but only read %d", length, nLen))
+		}
+		n, err := c.Read(temp)
+		if err != nil {
+			return nil, err
+		}
+		buffer = append(buffer, temp[:n]...)
+		nLen += n
+		if n >= end {
 			return buffer, nil
 		}
+		temp = temp[n:end]
+		end = end - n
 	}
 }
 
