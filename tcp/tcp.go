@@ -104,7 +104,7 @@ func Dial(ctx context.Context, network string, addr string) (*Conn, error) {
 }
 
 // readBytes 读取套接字字节
-func (c *Conn) readBytes(length int) ([]byte, error) {
+func (cli *Conn) readBytes(length int) ([]byte, error) {
 	end := length
 	temp := make([]byte, length)
 	buffer := make([]byte, 0)
@@ -119,7 +119,7 @@ func (c *Conn) readBytes(length int) ([]byte, error) {
 		if try > maxTry {
 			return nil, errors.New(fmt.Sprintf("Expected to read %d bytes, but only read %d", length, nLen))
 		}
-		n, err := c.Read(temp)
+		n, err := cli.Read(temp)
 		if err != nil {
 			return nil, err
 		}
